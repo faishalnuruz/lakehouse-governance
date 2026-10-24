@@ -1,0 +1,53 @@
+# Who may read what, and how sensitive columns are degraded for each role.
+#
+# The same shape exists in Unity Catalog as table grants, column masks, and
+# row filters; docs/unity-catalog-mapping.md maps each key below onto the
+# managed feature that does the same job on Databricks.
+
+roles:
+  admin:
+    description: platform owner, sees raw data
+    tables:
+      bronze_activities: read
+      silver_activities: read
+      gold_weekly_summary: read
+
+  scientist:
+    description: model owner, needs coordinates at coarse precision
+    tables:
+      silver_activities: read:masked
+      gold_weekly_summary: read
+
+  analyst:
+    description: business analyst, aggregates plus coarse health signal
+    tables:
+      silver_activities: read:masked
+      gold_weekly_summary: read
+    deny_columns:
+      silver_activities:
+        - gps_lat
+        - gps_lon
+
+  contractor:
+    description: external collaborator, aggregates only
+    tables:
+      gold_weekly_summary: read
+    deny_columns: {}
+
+columns:
+  silver_activities:
+    gps_lat:
+      mask: round_coordinates
+      detail: "1"
+      sensitivity: pii_location
+    gps_lon:
+      mask: round_coordinates
+      detail: "1"
+      sensitivity: pii_location
+    heart_rate_avg:
+      mask: bucket_health
+      detail: "10"
+      sensitivity: health
+    athlete_name:
+      mask: pseudonymise
+      sensitivity: pii_identity

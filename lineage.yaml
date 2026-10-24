@@ -1,0 +1,54 @@
+# Column-level lineage, declared the way a transformation framework would emit it.
+#
+# The test suite checks this metadata against the live database schema, so it
+# cannot quietly drift from the tables it describes — which is the failure mode
+# that makes a lineage diagram worse than none.
+
+tables:
+  bronze_activities:
+    layer: bronze
+    description: activity files exactly as delivered, plus provenance
+    inputs: []
+  silver_activities:
+    layer: silver
+    description: one row per activity, latest delivery wins via MERGE
+    inputs: [bronze_activities]
+  gold_weekly_summary:
+    layer: gold
+    description: weekly per-event aggregates for analysts and contractors
+    inputs: [silver_activities]
+
+columns:
+  silver_activities:
+    activity_id: bronze_activities.activity_id
+    event_id: bronze_activities.event_id
+    event_name: bronze_activities.event_name
+    athlete_name: bronze_activities.athlete_name
+    started_at: bronze_activities.started_at
+    distance_km: bronze_activities.distance_km
+    duration_s: bronze_activities.duration_s
+    pace_sec_per_km: bronze_activities.pace_sec_per_km
+    elevation_gain_m: bronze_activities.elevation_gain_m
+    heart_rate_avg: bronze_activities.heart_rate_avg
+    heart_rate_max: bronze_activities.heart_rate_max
+    gps_lat: bronze_activities.gps_lat
+    gps_lon: bronze_activities.gps_lon
+    _source_file: bronze_activities._source_file
+    _ingest_seq: bronze_activities._ingest_seq
+    _ingested_at: bronze_activities._ingested_at
+  gold_weekly_summary:
+    event_id: silver_activities.event_id
+    event_name: silver_activities.event_name
+    week: silver_activities.started_at
+    activities: silver_activities.activity_id
+    total_km: silver_activities.distance_km
+    total_elevation_gain_m: silver_activities.elevation_gain_m
+    avg_heart_rate: silver_activities.heart_rate_avg
+    avg_pace_sec_per_km: silver_activities.pace_sec_per_km
+
+pii:
+  silver_activities.gps_lat: pii_location
+  silver_activities.gps_lon: pii_location
+  silver_activities.heart_rate_avg: health
+  silver_activities.heart_rate_max: health
+  silver_activities.athlete_name: pii_identity

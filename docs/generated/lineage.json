@@ -1,0 +1,129 @@
+{
+  "tables": {
+    "bronze_activities": {
+      "layer": "bronze",
+      "description": "activity files exactly as delivered, plus provenance",
+      "inputs": []
+    },
+    "silver_activities": {
+      "layer": "silver",
+      "description": "one row per activity, latest delivery wins via MERGE",
+      "inputs": [
+        "bronze_activities"
+      ]
+    },
+    "gold_weekly_summary": {
+      "layer": "gold",
+      "description": "weekly per-event aggregates for analysts and contractors",
+      "inputs": [
+        "silver_activities"
+      ]
+    }
+  },
+  "edges": [
+    {
+      "from": "bronze_activities.activity_id",
+      "to": "silver_activities.activity_id"
+    },
+    {
+      "from": "bronze_activities.event_id",
+      "to": "silver_activities.event_id"
+    },
+    {
+      "from": "bronze_activities.event_name",
+      "to": "silver_activities.event_name"
+    },
+    {
+      "from": "bronze_activities.athlete_name",
+      "to": "silver_activities.athlete_name"
+    },
+    {
+      "from": "bronze_activities.started_at",
+      "to": "silver_activities.started_at"
+    },
+    {
+      "from": "bronze_activities.distance_km",
+      "to": "silver_activities.distance_km"
+    },
+    {
+      "from": "bronze_activities.duration_s",
+      "to": "silver_activities.duration_s"
+    },
+    {
+      "from": "bronze_activities.pace_sec_per_km",
+      "to": "silver_activities.pace_sec_per_km"
+    },
+    {
+      "from": "bronze_activities.elevation_gain_m",
+      "to": "silver_activities.elevation_gain_m"
+    },
+    {
+      "from": "bronze_activities.heart_rate_avg",
+      "to": "silver_activities.heart_rate_avg"
+    },
+    {
+      "from": "bronze_activities.heart_rate_max",
+      "to": "silver_activities.heart_rate_max"
+    },
+    {
+      "from": "bronze_activities.gps_lat",
+      "to": "silver_activities.gps_lat"
+    },
+    {
+      "from": "bronze_activities.gps_lon",
+      "to": "silver_activities.gps_lon"
+    },
+    {
+      "from": "bronze_activities._source_file",
+      "to": "silver_activities._source_file"
+    },
+    {
+      "from": "bronze_activities._ingest_seq",
+      "to": "silver_activities._ingest_seq"
+    },
+    {
+      "from": "bronze_activities._ingested_at",
+      "to": "silver_activities._ingested_at"
+    },
+    {
+      "from": "silver_activities.event_id",
+      "to": "gold_weekly_summary.event_id"
+    },
+    {
+      "from": "silver_activities.event_name",
+      "to": "gold_weekly_summary.event_name"
+    },
+    {
+      "from": "silver_activities.started_at",
+      "to": "gold_weekly_summary.week"
+    },
+    {
+      "from": "silver_activities.activity_id",
+      "to": "gold_weekly_summary.activities"
+    },
+    {
+      "from": "silver_activities.distance_km",
+      "to": "gold_weekly_summary.total_km"
+    },
+    {
+      "from": "silver_activities.elevation_gain_m",
+      "to": "gold_weekly_summary.total_elevation_gain_m"
+    },
+    {
+      "from": "silver_activities.heart_rate_avg",
+      "to": "gold_weekly_summary.avg_heart_rate"
+    },
+    {
+      "from": "silver_activities.pace_sec_per_km",
+      "to": "gold_weekly_summary.avg_pace_sec_per_km"
+    }
+  ],
+  "pii": {
+    "silver_activities.gps_lat": "pii_location",
+    "silver_activities.gps_lon": "pii_location",
+    "silver_activities.heart_rate_avg": "health",
+    "silver_activities.heart_rate_max": "health",
+    "silver_activities.athlete_name": "pii_identity"
+  },
+  "mermaid": "graph LR\n  bronze_activities[bronze_activities<br/>bronze]\n  silver_activities[silver_activities<br/>silver]\n  gold_weekly_summary[gold_weekly_summary<br/>gold]\n  bronze_activities --> silver_activities\n  silver_activities --> gold_weekly_summary\n  bronze_activities -. activity_id --> activity_id .- silver_activities\n  bronze_activities -. event_id --> event_id .- silver_activities\n  bronze_activities -. event_name --> event_name .- silver_activities\n  bronze_activities -. athlete_name --> athlete_name .- silver_activities\n  bronze_activities -. started_at --> started_at .- silver_activities\n  bronze_activities -. distance_km --> distance_km .- silver_activities\n  bronze_activities -. duration_s --> duration_s .- silver_activities\n  bronze_activities -. pace_sec_per_km --> pace_sec_per_km .- silver_activities\n  bronze_activities -. elevation_gain_m --> elevation_gain_m .- silver_activities\n  bronze_activities -. heart_rate_avg --> heart_rate_avg .- silver_activities\n  bronze_activities -. heart_rate_max --> heart_rate_max .- silver_activities\n  bronze_activities -. gps_lat --> gps_lat .- silver_activities\n  bronze_activities -. gps_lon --> gps_lon .- silver_activities\n  bronze_activities -. _source_file --> _source_file .- silver_activities\n  bronze_activities -. _ingest_seq --> _ingest_seq .- silver_activities\n  bronze_activities -. _ingested_at --> _ingested_at .- silver_activities\n  silver_activities -. event_id --> event_id .- gold_weekly_summary\n  silver_activities -. event_name --> event_name .- gold_weekly_summary\n  silver_activities -. started_at --> week .- gold_weekly_summary\n  silver_activities -. activity_id --> activities .- gold_weekly_summary\n  silver_activities -. distance_km --> total_km .- gold_weekly_summary\n  silver_activities -. elevation_gain_m --> total_elevation_gain_m .- gold_weekly_summary\n  silver_activities -. heart_rate_avg --> avg_heart_rate .- gold_weekly_summary\n  silver_activities -. pace_sec_per_km --> avg_pace_sec_per_km .- gold_weekly_summary"
+}
