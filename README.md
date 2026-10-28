@@ -1,4 +1,5 @@
 # Lakehouse Governance
+[![CI](https://github.com/faishalnuruz/lakehouse-governance/actions/workflows/ci.yml/badge.svg)](https://github.com/faishalnuruz/lakehouse-governance/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 A medallion lakehouse where the governance is enforced rather than described: roles decide what a
 query can read, sensitive columns are degraded at query time, and every published column traces back
